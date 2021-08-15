@@ -1,14 +1,19 @@
 package com.meelsnet.app.ws.ui.controller;
 
 import com.meelsnet.app.ws.exceptions.UserServiceException;
+import com.meelsnet.app.ws.service.AddressService;
 import com.meelsnet.app.ws.service.UserService;
+import com.meelsnet.app.ws.shared.dto.AddressDto;
 import com.meelsnet.app.ws.shared.dto.UserDto;
 import com.meelsnet.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.meelsnet.app.ws.ui.model.response.*;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,10 +22,12 @@ import java.util.List;
 public class UserController {
 
     final UserService userService;
+    final AddressService addressService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AddressService addressService) {
         this.userService = userService;
+        this.addressService = addressService;
     }
 
     @GetMapping(path = "/{id}")
@@ -35,16 +42,15 @@ public class UserController {
 
     @PostMapping
     public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
-        UserRest returnValue = new UserRest();
 
         if (userDetails.getFirstName().isEmpty())
             throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 
-        UserDto userDto = new UserDto();
-        BeanUtils.copyProperties(userDetails, userDto);
+        ModelMapper modelMapper = new ModelMapper();
+        UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 
         UserDto createdUser = userService.createUser(userDto);
-        BeanUtils.copyProperties(createdUser, returnValue);
+        UserRest returnValue = modelMapper.map(createdUser, UserRest.class);
 
         return returnValue;
     }
@@ -88,5 +94,27 @@ public class UserController {
         }
 
         return returnValue;
+    }
+
+    @GetMapping(path = "/{id}/addresses")
+    public List<AddressRest> getUserAddresses(@PathVariable String id) {
+        List<AddressRest> returnValue = new ArrayList<>();
+
+        List<AddressDto> addressDtoList = addressService.getAddressList(id);
+
+        if(addressDtoList != null && !addressDtoList.isEmpty()) {
+            Type listType = new TypeToken<List<AddressRest>>() {}.getType();
+            returnValue = new ModelMapper().map(addressDtoList, listType);
+        }
+
+        return returnValue;
+    }
+
+    @GetMapping(path = "/{userId}/addresses/{addressId}")
+    public AddressRest getUserAddress(@PathVariable String addressId) {
+        AddressDto addressDto = addressService.getAddress(addressId);
+
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(addressDto, AddressRest.class);
     }
 }
