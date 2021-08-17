@@ -27,9 +27,6 @@ public class AmazonSES {
             "Thank you! And we are waiting for you inside!";
 
     public void verifyEmail(UserDto userDto) {
-        System.setProperty("aws.accessKeyId", "AKIA54OQVOJOJ33TSBYK");
-        System.setProperty("aws.secretKey", "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");
-
         AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard()
                 .withRegion(Regions.EU_WEST_3).build();
 
