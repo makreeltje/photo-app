@@ -38,6 +38,10 @@ public class AddressEntity implements Serializable {
     @JoinColumn(name = "users_id")
     private UserEntity userDetails;
 
+    public void setHouseNumber(int houseNumber) {
+        this.houseNumber = houseNumber;
+    }
+
     public long getId() {
         return id;
     }
@@ -80,10 +84,6 @@ public class AddressEntity implements Serializable {
 
     public int getHouseNumber() {
         return houseNumber;
-    }
-
-    public void setHouseNumber(int houseNumber) {
-        this.houseNumber = houseNumber;
     }
 
     public String getPostalCode() {

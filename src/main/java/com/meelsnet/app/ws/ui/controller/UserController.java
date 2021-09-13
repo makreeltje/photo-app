@@ -110,8 +110,7 @@ public class UserController {
         List<AddressDto> addressDtoList = addressService.getAddressList(id);
 
         if (addressDtoList != null && !addressDtoList.isEmpty()) {
-            Type listType = new TypeToken<List<AddressRest>>() {
-            }.getType();
+            Type listType = new TypeToken<List<AddressRest>>() {}.getType();
             returnValue = new ModelMapper().map(addressDtoList, listType);
 
             for (AddressRest addressRest :
